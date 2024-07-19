@@ -15,7 +15,7 @@ namespace WebApplication1.web
         private readonly ILogger<NotificationListenerService> _logger;
         //private readonly ICacheService _cacheService;
         private readonly IServiceProvider _serviceProvider;
-        public NotificationListenerService(NpgsqlConnection connection, ILogger<NotificationListenerService> logger,IServiceProvider serviceProvider)//ICacheService cacheService)
+        public NotificationListenerService(NpgsqlConnection connection, ILogger<NotificationListenerService> logger,IServiceProvider serviceProvider)
         {
             _connection = connection ?? throw new ArgumentNullException(nameof(connection));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

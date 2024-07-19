@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.IRepository;
-using WebApplication1.Models;
 using Npgsql;
 using WebApplication1.web;
 var builder = WebApplication.CreateBuilder(args);
@@ -15,13 +14,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<ICacheService, WMS.CacheService>();
-builder.Services.AddDbContext<YourDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddDbContext<DbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Logging.AddConsole();
 
 // Add PostgreSQL connection
 builder.Services.AddSingleton<NpgsqlConnection>(provider =>
 {
-    var connectionString ="Host=localhost;Port=5432;Username=postgres;Password=Root;Database=Techzonedb";
+    var connectionString ="Host=localhost;Port=5432;Username=postgres;Password=Root;Database=postgres";
     var connection = new NpgsqlConnection(connectionString);
     connection.Open();
     return connection;

@@ -1,0 +1,17 @@
+﻿CREATE or REPLACE FUNCTION public.test_table_notify_trigger() RETURNS trigger AS
+	$$ DECLARE
+         BEGIN
+PERFORM pg_notify(CAST('update_notification' AS text), row_to_json(NEW)::text); 
+RETURN new;
+END;
+$$ LANGUAGE plpgsql;
+
+
+CREATE TRIGGER test_table_update_trigger AFTER UPDATE ON public.employee 
+FOR EACH ROW EXECUTE PROCEDURE public.test_table_notify_trigger();
+
+UPDATE employee
+SET firstname = 'yashwanth', lastname = 'Munja',department='It'
+WHERE employeeid=12 ; 
+
+THIS  IS TRIGGER SET IN THE DATABASE
