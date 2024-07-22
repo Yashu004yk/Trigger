@@ -10,8 +10,68 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER test_table_update_trigger AFTER UPDATE ON public.employee 
 FOR EACH ROW EXECUTE PROCEDURE public.test_table_notify_trigger();
 
-UPDATE employee
-SET firstname = 'yashwanth', lastname = 'Munja',department='It'
-WHERE employeeid=12 ; 
+//UPDATE employee
+//SET firstname = 'yashwanth', lastname = 'Munja',department='It'
+//WHERE employeeid=12 ; 
+
+//-------------------------------->
+CREATE OR REPLACE FUNCTION public.department_change_notify()
+RETURNS trigger AS $$
+DECLARE
+BEGIN
+    -- Check if the department column has changed
+    IF NEW.department IS DISTINCT FROM OLD.department THEN
+        -- Send a notification with a specific message
+        PERFORM pg_notify('update_notification', 'Row updated');
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+CREATE TRIGGER employee_department_update_trigger
+AFTER UPDATE OF department ON employee
+FOR EACH ROW
+EXECUTE FUNCTION public.department_change_notify();
+
+
+
+//setting up a trigger for a column of a table
+
+
+
+//----------------------------------------->
+CREATE OR REPLACE FUNCTION public.general_notify_trigger()
+RETURNS trigger AS $$
+BEGIN
+    IF TG_TABLE_NAME = 'employee' THEN
+        IF TG_OP = 'UPDATE' AND NEW.department IS DISTINCT FROM OLD.department THEN
+            -- Send a notification for the department change
+            PERFORM pg_notify('update_notification', 'Department changed in employee table');
+        END IF;
+    ELSIF TG_TABLE_NAME = 'order' THEN
+        -- Send a notification for any row update in the order table
+        IF TG_OP = 'UPDATE' THEN
+            PERFORM pg_notify('update_notification', 'Row updated in orders table');
+        END IF;
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+-- Trigger for the employee table
+CREATE TRIGGER employee_update_trigger
+AFTER UPDATE ON public.employee
+FOR EACH ROW
+EXECUTE FUNCTION public.general_notify_trigger();
+
+-- Trigger for the order table
+CREATE TRIGGER order_update_trigger
+AFTER UPDATE ON public.order
+FOR EACH ROW
+EXECUTE FUNCTION public.general_notify_trigger();
+
+//This a function and it contains functionality of two triggers for different tables
 
 THIS  IS TRIGGER SET IN THE DATABASE
